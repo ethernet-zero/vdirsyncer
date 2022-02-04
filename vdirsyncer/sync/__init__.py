@@ -41,7 +41,11 @@ class _StorageInfo:
 
         def _store_props(ident, props):
             try:
-                self.status.insert_ident(ident, props)
+                self.status.insert_ident(
+                    ident,
+                    props,
+                    replace_existing=self.storage.replace_existing
+                )
             except IdentAlreadyExists as e:
                 raise e.to_ident_conflict(self.storage)
 
@@ -131,9 +135,9 @@ async def sync(
         raise BothReadOnly()
 
     if conflict_resolution == "a wins":
-        conflict_resolution = lambda a, b: a  # noqa: E731
+        def conflict_resolution(a, b): return a  # noqa: E731
     elif conflict_resolution == "b wins":
-        conflict_resolution = lambda a, b: b  # noqa: E731
+        def conflict_resolution(a, b): return b  # noqa: E731
 
     status_nonempty = bool(next(status.iter_old(), None))
 

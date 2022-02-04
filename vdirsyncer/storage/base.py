@@ -52,6 +52,10 @@ class Storage(metaclass=StorageMeta):
 
     :param read_only: Whether the synchronization algorithm should avoid writes
         to this storage. Some storages accept no value other than ``True``.
+    :param replace_existing: Whether the synchronization algorithm should
+        ignore when there's more than one item with the same UID or content and
+        just store the last one found. Use only if you're completely and
+        positively sure that this is what you want.
     """
 
     fileext = ".txt"
@@ -72,15 +76,25 @@ class Storage(metaclass=StorageMeta):
     # support those methods.
     read_only = False
 
+    # Setting this option to True will replace any existing items with the same
+    # ident. Use only if you're completely and positively sure that this is
+    # what you want.
+    replace_existing = False
+
     # The attribute values to show in the representation of the storage.
     _repr_attributes: List[str] = []
 
-    def __init__(self, instance_name=None, read_only=None, collection=None):
+    def __init__(self, instance_name=None, read_only=None,
+                 replace_existing=None, collection=None):
         if read_only is None:
             read_only = self.read_only
         if self.read_only and not read_only:
             raise exceptions.UserError("This storage can only be read-only.")
         self.read_only = bool(read_only)
+
+        if replace_existing is None:
+            replace_existing = self.replace_existing
+        self.replace_existing = bool(replace_existing)
 
         if collection and instance_name:
             instance_name = f"{instance_name}/{collection}"

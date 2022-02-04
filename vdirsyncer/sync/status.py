@@ -190,10 +190,10 @@ class SqliteStatus(_StatusBase):
         finally:
             self._c = old_c
 
-    def insert_ident_a(self, ident, a_props):
+    def insert_ident_a(self, ident, a_props, replace_existing=False):
         # FIXME: Super inefficient
         old_props = self.get_new_a(ident)
-        if old_props is not None:
+        if old_props is not None and not replace_existing:
             raise IdentAlreadyExists(old_href=old_props.href, new_href=a_props.href)
         b_props = self.get_new_b(ident) or ItemMetadata()
         self._c.execute(
@@ -209,10 +209,10 @@ class SqliteStatus(_StatusBase):
             ),
         )
 
-    def insert_ident_b(self, ident, b_props):
+    def insert_ident_b(self, ident, b_props, replace_existing=False):
         # FIXME: Super inefficient
         old_props = self.get_new_b(ident)
-        if old_props is not None:
+        if old_props is not None and not replace_existing:
             raise IdentAlreadyExists(old_href=old_props.href, new_href=b_props.href)
         a_props = self.get_new_a(ident) or ItemMetadata()
         self._c.execute(
